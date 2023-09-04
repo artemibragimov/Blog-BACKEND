@@ -41,3 +41,24 @@ export const getAll = async (req, res) => {
         })
     }
 }
+
+export const getOne = async (req, res) => {
+    try {
+        const postId = req.params.id
+        const post = await PostModel.findOneAndUpdate(
+            {_id: postId},
+            {$inc: {viewsCount: 1}},
+            {new: true}
+        )
+        if (!post) {
+            return res.status(404).json({
+                message: 'Статья не найдена'
+            })
+        }
+        res.json(post)
+    } catch (err) {
+        return res.status(500).json({
+            message: 'Не удалось загрузить статью'
+        })
+    }
+}
