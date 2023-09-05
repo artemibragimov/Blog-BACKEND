@@ -24,8 +24,8 @@ app.get('/auth/me', checkAuth, UserController.me)
 app.get('/posts', checkAuth, PostController.getAll)
 app.get('/posts/:id', checkAuth, PostController.getOne)
 app.post('/posts', checkAuth, postCreateValidations, PostController.createPost)
-app.delete('/posts/:id',checkAuth, PostController.remove)
-//app.path('/posts', PostController.update)
+app.delete('/posts/:id', checkAuth, PostController.remove)
+app.put('/posts/:id', checkAuth, PostController.update)
 
 app.listen(port, () => {
     console.log(`Server OK`)
