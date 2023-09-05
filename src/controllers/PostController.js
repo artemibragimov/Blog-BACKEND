@@ -62,3 +62,24 @@ export const getOne = async (req, res) => {
         })
     }
 }
+
+export const remove = async (req, res) => {
+    try {
+        const postId = req.params.id
+         await PostModel.findOneAndRemove({_id: postId}).then((err, doc) => {
+            if (err) {
+                return res.status(5000).json({
+                    message: 'Не удалось удалить статью'
+                })
+            }
+
+            res.json({
+                message: 'Статья успешно удалена'
+            })
+        })
+    } catch (err) {
+        return res.status(500).json({
+            message: 'Не удалось удалить статью'
+        })
+    }
+}
