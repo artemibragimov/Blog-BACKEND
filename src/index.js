@@ -2,9 +2,8 @@ import express from 'express'
 import multer from 'multer'
 import mongoose from 'mongoose'
 import {loginValidations, postCreateValidations, registerValidations} from "./validations/validations.js"
-import checkAuth from "./utils/checkAuth.js"
-import * as UserController from "./controllers/UserController.js";
-import * as PostController from "./controllers/PostController.js";
+import {checkAuth, handleValidationErrors}from "./utils/index.js"
+import {UserController, PostController} from "./controllers/index.js";
 
 const app = express()
 const port = 3000
@@ -30,8 +29,8 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage})
 
 
-app.post('/auth/login', loginValidations, UserController.login)
-app.post('/auth/register', registerValidations, UserController.register)
+app.post('/auth/login', loginValidations,handleValidationErrors, UserController.login)
+app.post('/auth/register', registerValidations,handleValidationErrors, UserController.register)
 app.get('/auth/me', checkAuth, UserController.me)
 
 app.post('/uploads', upload.single('image'), (req, res) => {
@@ -42,9 +41,9 @@ app.post('/uploads', upload.single('image'), (req, res) => {
 
 app.get('/posts', PostController.getAll)
 app.get('/posts/:id', PostController.getOne)
-app.post('/posts', checkAuth, postCreateValidations, PostController.createPost)
+app.post('/posts', checkAuth, postCreateValidations,handleValidationErrors, PostController.createPost)
 app.delete('/posts/:id', checkAuth, PostController.remove)
-app.put('/posts/:id', checkAuth, PostController.update)
+app.put('/posts/:id', checkAuth, postCreateValidations,handleValidationErrors, PostController.update)
 
 app.listen(port, () => {
     console.log(`Server OK`)

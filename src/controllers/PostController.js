@@ -3,11 +3,6 @@ import {validationResult} from "express-validator";
 
 export const createPost = async (req, res) => {
     try {
-        const errors = validationResult(req)
-        if (!errors.isEmpty()) {
-            res.status(400).json(errors.array())
-        }
-
         const doc = new PostModel({
             title: req.body.title,
             text123: req.body.text123,
@@ -61,7 +56,6 @@ export const getOne = async (req, res) => {
         })
     }
 }
-
 export const remove = async (req, res) => {
     try {
         const post = await PostModel.findOne({_id: req.params.id})
@@ -80,7 +74,6 @@ export const remove = async (req, res) => {
         })
     }
 }
-
 export const update = async (req, res) => {
     try {
         const post = await PostModel.findOneAndUpdate(
