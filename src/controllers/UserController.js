@@ -1,4 +1,3 @@
-import {validationResult} from "express-validator";
 import bcrypt from "bcrypt";
 import UserModel from "../models/User.js";
 import jwt from "jsonwebtoken";
@@ -21,7 +20,7 @@ export const register = async (req, res) => {
         const token = jwt.sign({
                 _id: user._id
             },
-            'secret123',
+            'secret123',    
             {
                 expiresIn: '30d'
             })

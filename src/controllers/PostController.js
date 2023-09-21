@@ -1,12 +1,12 @@
 import PostModel from "../models/Post.js";
-import {validationResult} from "express-validator";
+import CommentModel from "../models/Comment.js"
 
 export const createPost = async (req, res) => {
     try {
         const doc = new PostModel({
             title: req.body.title,
             text123: req.body.text123,
-            tags: req.body.tags,
+            tags: req.body.tags.split(','),
             user: req.userId,
             imageUrl: req.body.imageUrl
         })
@@ -29,7 +29,13 @@ export const getAll = async (req, res) => {
                 message: 'Не удалось загрузить статьи'
             })
         }
-        res.json(posts)
+
+        if (req.query.sort === 'true') {
+            let sortPosts = posts.sort((a, b) => b.viewsCount - a.viewsCount)
+            return res.json(sortPosts)
+        }
+
+        res.json(posts.reverse())
     } catch (err) {
         return res.status(500).json({
             message: 'Не удалось загрузить статьи'
@@ -43,7 +49,7 @@ export const getOne = async (req, res) => {
             {_id: req.params.id},
             {$inc: {viewsCount: 1}},
             {new: true}
-        )
+        ).populate('user').exec()
         if (!post) {
             return res.status(404).json({
                 message: 'Статья не найдена'
@@ -67,7 +73,7 @@ export const remove = async (req, res) => {
         await PostModel.findOneAndRemove({_id: req.params.id})
         res.json({
             message: 'Статья успешно удалена'
-        })
+         })
     } catch (err) {
         return res.status(500).json({
             message: 'Не удалось удалить статью'
@@ -83,7 +89,7 @@ export const update = async (req, res) => {
             {
                 title: req.body.title,
                 text123: req.body.text123,
-                tags: req.body.tags,
+                tags: req.body.tags.split(','),
                 user: req.userId,
                 imageUrl: req.body.imageUrl
             }
@@ -99,6 +105,54 @@ export const update = async (req, res) => {
     } catch (err) {
         return res.status(500).json({
             message: 'Не удалось обновить статью'
+        })
+    }
+}
+
+export const addComment = async (req, res) => {
+    try {
+        const doc = new CommentModel({
+            postId: req.params.id,
+            user: req.userId,
+            text: req.body.text
+        })
+
+        const Comment = await doc.save()
+
+        await PostModel.findOneAndUpdate(
+            {_id: req.params.id},
+            {$inc: {commentsCount: 1}},
+            {new: true}
+        )
+
+        res.json(Comment)
+    } catch (err) {
+        res.status(500).json({
+            message: 'Не удалось создать коментарий'
+        })
+    }
+}
+
+export const getComment = async (req, res) => {
+    try {
+        const comments = await CommentModel.find({postId: req.params.id}).populate('user').exec() //добавление связи id пользователя с постами
+
+        if (comments.length === 0) {
+            return res.status(500).json({
+                message: 'Не удалось загрузить комментарии'
+            })
+        }
+
+        const commentsData = comments.map(a => ({
+                fullName: a.user.fullName,
+                avatarUrl: a.avatarUrl,
+                text: a.text
+            })
+        );
+        res.json(commentsData)
+    } catch (err) {
+        return res.status(500).json({
+            message: 'Не удалось загрузить комментарии'
         })
     }
 }

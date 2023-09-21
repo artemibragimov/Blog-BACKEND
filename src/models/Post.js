@@ -22,7 +22,11 @@ const PostSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    imageUrl: String,
+    commentsCount: {
+        type: Number,
+        default: 0
+    },
+    imageUrl: String
 }, {
     timestamps: true
 })
